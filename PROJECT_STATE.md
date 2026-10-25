@@ -1,13 +1,73 @@
 # PROJECT_STATE - Smart Manhole Monitoring System
 
 **Updated:** 2026-10-25 IST.
-**Milestone:** 4A–4C implemented and verified; checkpoint publishing authorized.
-**Approval:** User explicitly authorized one checkpoint commit on
-`codex/smart-manhole-pulse-4a` and a normal push establishing its matching origin
-upstream. No main-branch changes, history rewriting or 4D work are authorized.
-The M1-M3 checkpoint remains the historical baseline.
+**Milestone:** 4D approved for final audit and checkpoint publishing.
+**Approval:** User authorized a verified 4D commit and normal push to the existing
+development-branch upstream, with no main merge or history rewrite. The published 4A–4C baseline is
+`e8be03fa89bc52c32b3cf036bd5ea0b14e624715` on `codex/smart-manhole-pulse-4a`,
+tracking `origin/codex/smart-manhole-pulse-4a`. M1–M3 remains historical context.
 **Sources:** PRD.md records approved scope; docs/api-contract.md v1.1 records actual
 wire formats; README.md documents startup, configuration and the presentation script.
+
+## Milestone 4D — Intelligent Alert Sounds & Final Presentation Readiness
+
+Implemented `SoundControl.tsx` in the persistent application header and the small
+`incidentSound.ts` policy/audio service. No added dependencies, network requests,
+polling owner, backend edits, schema changes or firmware changes.
+
+- Starts muted on reload. Explicit operator click creates/resumes Web Audio.
+  Navigation preserves the session choice. Visible labels, pressed state, keyboard
+  focus and polite status text explain muted/enabled/pending/unavailable states.
+- Shared `incidentEvents` and Flask incident severity/status drive one grouped cue
+  for newly seen active critical IDs. Muted events are consumed, never queued.
+  Acknowledgement and resolution are intentionally silent; physical hazard displays
+  and resolution eligibility retain their existing semantics.
+- Warning cue: two soft sine notes (660/880 Hz), 0.43 seconds total, gain 0.045
+  with ramped edges. No looping. Three-second cooldown drops bursts without replay.
+  First data, recovery after API failure, and gaps over 20 seconds rebaseline silently.
+- Mute disconnects/stops active and scheduled voices, and cancels pending enables.
+  Unsupported/rejected/interrupted contexts keep visual monitoring operational.
+  Audio is independently opt-in; existing reduced-motion rules remain intact.
+
+Fresh verification on 2026-10-25:
+- Lint, TypeScript typecheck and production build passed.
+- Complete Edge Playwright suite: **42 passed in 1.8 minutes**. New policy/browser
+  tests cover grouping, cooldown, muted consumption, navigation/poll deduplication,
+  reconnect backlog, long gaps, missing AudioContext, rejected resume and cancelled
+  pending enable. Native oscillator scheduling is instrumented without replacing
+  actual synthesis in the enabled tests.
+- Extended real Flask lifecycle test confirms zero notes on enable/history, two
+  notes for one new methane incident, and no extra notes for repeated readings,
+  acknowledgement, fresh normal restoration or resolution. Existing stale, offline,
+  partial/raw, simultaneous hazard, animation identity and reduced-motion tests pass.
+- First full run exposed narrow header overflow in the existing 390px regression.
+  Collapsed only the new control's text at narrow widths; the final full run passes.
+- Inspected Dashboard, Alerts, Simulator and node details at 1366x768 and 1920x1080.
+  Desktop checks found no horizontal overflow or page errors. Eight screenshots
+  are under ignored `frontend/.tmp/4d-<view>-<width>.png`.
+- Build: main JS 438.14 kB (134.50 gzip), drawer 372.01 kB (109.57 gzip), CSS
+  82.92 kB (21.36 gzip). `git diff --check` passes. Backend tests were not rerun
+  during implementation; the final checkpoint audit below includes a fresh run.
+
+Presentation: enable “Alert sounds” in the header, trigger a new methane incident
+on a normal demo node, acknowledge, restore normal readings, then resolve. Existing
+unresolved IDs intentionally do not sound again. Check speaker/system volume on
+the actual presentation machine; automated browser scheduling does not verify
+human-perceived loudness, speaker routing or a physical projector/ESP32.
+
+Final checkpoint audit: remote fetch succeeded; the development branch and its
+existing upstream were synchronized, and origin/main was an ancestor. Review of
+the 4A–4C commit and pending 4D files found only approved frontend/tests/docs.
+No secret-pattern matches or tracked generated artifacts were found; the tracked
+`.env.example` contains only local API configuration. Backend, firmware, schema
+definitions, API/integration contracts, simulator and hardware ingestion code are
+unchanged from the M1–M3 baseline. Fresh backend pytest: **46 passed in 24.80s**.
+Fresh final frontend audit: lint, typecheck and production build passed; the complete
+Edge Playwright suite passed **42/42 in 2.1 minutes**, including real incident/audio
+lifecycle, polling/recovery deduplication and desktop presentation checks.
+Prior local review images and note remain excluded and preserved. Generated
+screenshots, build files and test results remain ignored. See Git history for
+the checkpoint hash and tracking state; no new features were added during audit.
 
 ## Milestone 4C — Complete UI Polish & Interaction Refinement
 
@@ -491,4 +551,6 @@ Only approved frontend source, tests and project documentation enter this checkp
 The two review images and their companion note remain local and untracked;
 dependencies, database files and generated test/build outputs remain excluded.
 Use Git history and branch tracking to confirm the resulting commit and push state.
-Separate explicit approval is required for Milestone 4D.
+That checkpoint was committed and pushed as `e8be03fa89bc52c32b3cf036bd5ea0b14e624715`.
+The subsequent final-audit approval authorizes one verified 4D checkpoint and a
+normal push to the existing upstream; see the current verification record above.

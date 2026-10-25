@@ -17,6 +17,7 @@ import {
 import type { AlertStatus, Range, Scenario } from './types/api'
 import { api, refreshDemo } from './services/api'
 import { useMonitor } from './hooks/useMonitor'
+import { SoundControl } from './components/SoundControl'
 import { Dashboard } from './pages/Dashboard'
 import { Alerts } from './pages/Alerts'
 import { Simulator } from './pages/Simulator'
@@ -214,6 +215,7 @@ export default function App() {
             </strong>
           </div>
           <div className="topbar-right">
+            <SoundControl data={data} disconnected={!!error} />
             <span className="source-tag">
               <FlaskConical size={13} />
               {data

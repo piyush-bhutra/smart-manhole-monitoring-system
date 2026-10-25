@@ -389,3 +389,33 @@ Simulator and node details at both desktop widths. Maintain backend APIs, databa
 schema, simulator/worker logic, telemetry contracts and future ESP32 compatibility.
 Record actual outcomes in PROJECT_STATE.md; physical hardware/projector validation
 is not implied by desktop browser tests.
+
+## 20. Approved Milestone 4D — Intelligent Alert Sounds & Presentation Readiness
+
+User authorized implementation after the committed 4A–4C checkpoint, then approved
+final audit and checkpoint publishing subject to passing checks. Preserve Flask APIs, SQLite, simulator,
+firmware and telemetry contracts; introduce no dependencies or extra polling.
+
+- Header offers a keyboard-accessible, explicitly opt-in sound toggle. Start muted
+  on every full page load; route navigation retains the operator's session choice.
+- Use native Web Audio, created/resumed only by an operator click. Handle absent,
+  rejected, suspended or interrupted audio without impairing monitoring. Allow
+  cancelling a pending enable. Muting disconnects scheduled and active voices.
+- A newly observed active incident with Flask severity `critical` receives one
+  softly ramped, approximately 0.43-second two-note cue. Consume the existing shared
+  arrival events; do not infer incidents from sensor values or workflow counts.
+  Warning-severity incidents and acknowledgement/resolution remain visually
+  represented but silent. Acknowledgement still does not imply physical safety.
+- Baseline history, repeated polls/readings, navigation and muted arrivals are
+  silent. Group arrivals in a snapshot; apply a three-second non-queued cooldown.
+  Silently rebaseline after API failure or a snapshot gap exceeding 20 seconds,
+  preventing recovery/background-tab notification cascades.
+- Preserve 4A–4C illustration, map, stale/offline/partial-channel and simultaneous
+  hazard behavior. Reduced-motion settings continue to govern visuals; sound
+  remains independently opt-in.
+
+Acceptance: run lint, typecheck, build and the complete relevant browser suite;
+verify actual Flask hazard lifecycle with enabled audio, silent polling/navigation,
+muting, grouped arrivals, recovery and unavailable/blocked audio. Inspect Dashboard,
+Alerts, Simulator and node details at 1366px and 1920px. Browser scheduling checks
+do not establish loudness on the professor's presentation speakers.

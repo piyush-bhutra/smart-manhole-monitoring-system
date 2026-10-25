@@ -44,6 +44,15 @@ test('new incidents enter once, acknowledgement retains danger, resolution settl
 })
 
 test('real Flask incident creation, repeated hazard, acknowledgement and resolution drive presentation', async ({ page, request }) => {
+  await page.addInitScript(() => {
+    const start = OscillatorNode.prototype.start
+    Object.assign(window, { lifecycleNotes: 0 })
+    OscillatorNode.prototype.start = function (...args) {
+      (window as unknown as { lifecycleNotes: number }).lifecycleNotes++
+      return start.apply(this, args)
+    }
+  })
+  const notes = () => page.evaluate(() => (window as unknown as { lifecycleNotes: number }).lifecycleNotes)
   const scenario = (scenario: string) => request.post('/api/simulator/scenario', { data: { node_id: 'MH-002', scenario } })
   await scenario('normal')
   const history: Alert[] = await (await request.get('/api/alerts')).json()
@@ -53,6 +62,9 @@ test('real Flask incident creation, repeated hazard, acknowledgement and resolut
   await page.goto('/#alerts')
   await expect(page.getByRole('heading', { name: 'Incident management' })).toBeVisible()
   await expect(page.locator('.incident-ribbon')).toBeVisible()
+  await page.getByRole('button', { name: 'Alert sounds', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Alert sounds', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  expect(await notes()).toBe(0)
   const result = await (await scenario('methane')).json()
   const id = result.created_alert_ids[0]
   expect(id).toBeTruthy()
@@ -60,6 +72,7 @@ test('real Flask incident creation, repeated hazard, acknowledgement and resolut
     await page.getByRole('button', { name: 'Refresh API data' }).click()
     const card = page.getByTestId(`alert-${id}`)
     await expect(card).toHaveAttribute('data-event', 'arrival')
+    await expect.poll(notes).toBe(2)
     const at = await card.getAttribute('data-event-at')
     expect((await (await scenario('methane')).json()).created_alert_ids).toEqual([])
     await page.getByRole('button', { name: 'Refresh API data' }).click()
@@ -68,12 +81,14 @@ test('real Flask incident creation, repeated hazard, acknowledgement and resolut
     await expect(card).toHaveAttribute('data-event', 'acknowledged')
     await expect(card).toContainText('Measured hazard persists')
     await expect(card.getByRole('button', { name: 'Resolve', exact: true })).toBeDisabled()
+    expect(await notes()).toBe(2)
     await scenario('normal')
     await page.getByRole('button', { name: 'Refresh API data' }).click()
     await expect(card).toContainText('Measured clear')
     await card.getByRole('button', { name: 'Resolve', exact: true }).click()
     await expect(card).toHaveAttribute('data-event', 'resolved')
     await expect(card).toContainText('Fresh normal observation')
+    expect(await notes()).toBe(2)
   } finally {
     await scenario('normal')
     await request.patch(`/api/alerts/${id}`, { data: { status: 'resolved' } })
