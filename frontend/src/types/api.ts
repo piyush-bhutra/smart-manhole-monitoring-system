@@ -89,6 +89,7 @@ export interface IngestResult {
   received_at: string
 }
 export interface Snapshot {
+  incidentEvents?: import('../services/incidentEvents').IncidentEvents
   summary: Summary
   nodes: MonitorNode[]
   alerts: Alert[]

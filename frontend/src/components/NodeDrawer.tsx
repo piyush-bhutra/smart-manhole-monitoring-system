@@ -25,6 +25,7 @@ import { dateTime, gas, readingValue, time } from '../utils'
 import { AlertList } from './AlertList'
 import { StatusBadge } from './StatusBadge'
 import { historySeries } from '../services/history'
+import { conditionView } from '../services/conditionView'
 
 const chartFields: { id: SensorField; label: string; unit: string }[] = [
   { id: 'methane_ppm', label: 'Methane', unit: 'ppm' },
@@ -47,6 +48,7 @@ export function NodeDrawer({
   onRange,
   onClose,
   onAction,
+  onSelect,
 }: {
   selectedId: string
   detail: { node: MonitorNode; readings: Reading[] } | null
@@ -59,6 +61,7 @@ export function NodeDrawer({
   onRange: (range: Range) => void
   onClose: () => void
   onAction: (id: number, status: Exclude<AlertStatus, 'active'>) => void
+  onSelect: (id: string) => void
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const [field, setField] = useState<SensorField>(() => {
@@ -84,6 +87,8 @@ export function NodeDrawer({
     }
   }, [])
   const node = detail?.node || data.nodes.find((node) => node.id === selectedId)
+  const snapshotCurrent = !connectionError && !error
+  const view = node ? conditionView(node, data.summary.demo_thresholds, snapshotCurrent) : null
   const series = chartFields.find((item) => item.id === field)!
   const chartData = historySeries(
     detail?.readings || [],
@@ -91,6 +96,7 @@ export function NodeDrawer({
     data.summary.sensor_stale_seconds || 300,
   )
   const hasChartData = chartData.some((reading) => reading.value !== null)
+  const values = chartData.flatMap(reading => reading.value === null ? [] : [reading.value])
   const threshold =
     field === 'methane_ppm'
       ? data.summary.demo_thresholds.methane
@@ -128,6 +134,11 @@ export function NodeDrawer({
             <X size={21} />
           </button>
         </header>
+        <label className="drawer-node-switch">Inspect another node
+          <select aria-label="Inspect another node" value={selectedId} onChange={event => onSelect(event.target.value)}>
+            {data.nodes.map(item => <option key={item.id} value={item.id}>{item.id} · {item.name}</option>)}
+          </select>
+        </label>
         {notice && (
           <div
             className={`drawer-feedback ${notice.error ? 'error' : ''}`}
@@ -150,10 +161,10 @@ export function NodeDrawer({
                 </p>
               </div>
               <div className="node-state">
-                <span className={`connectivity ${node.connectivity}`}>{node.connectivity}</span>
+                <span className={`connectivity ${snapshotCurrent ? node.connectivity : 'offline'}`}>{snapshotCurrent ? node.connectivity : 'Snapshot unavailable'}</span>
                 <StatusBadge
-                  status={node.safety_status}
-                  label={node.safety_status === 'unknown' ? 'Safety unknown' : undefined}
+                  status={view?.mode === 'snapshot-stale' || view?.mode === 'offline' ? 'unknown' : node.safety_status}
+                  label={!snapshotCurrent || node.connectivity === 'offline' ? 'Safety unconfirmed' : node.safety_status === 'unknown' ? 'Safety unknown' : undefined}
                 />
               </div>
             </div>
@@ -192,15 +203,17 @@ export function NodeDrawer({
           <>
             <div className="sensor-grid">
               {[
-                { label: 'Methane', icon: Flame, ...gas(node, 'methane') },
-                { label: 'Hydrogen sulfide', icon: Wind, ...gas(node, 'h2s') },
+                { kind: 'methane' as const, label: 'Methane', icon: Flame, ...gas(node, 'methane') },
+                { kind: 'h2s' as const, label: 'Hydrogen sulfide', icon: Wind, ...gas(node, 'h2s') },
                 {
+                  kind: 'overflow' as const,
                   label: 'Water height',
                   icon: Waves,
                   sensor: node.sensors.water_level_cm,
                   unit: 'cm',
                 },
                 {
+                  kind: 'cover' as const,
                   label: 'Manhole cover',
                   icon: ShieldCheck,
                   sensor: node.sensors.cover_displaced,
@@ -208,7 +221,7 @@ export function NodeDrawer({
                 },
               ].map((item) => (
                 <article
-                  className={`sensor-card ${!item.sensor.fresh ? 'stale' : ''}`}
+                  className={`sensor-card channel-${view?.channels[item.kind]} ${!snapshotCurrent || node.connectivity === 'offline' || !item.sensor.fresh ? 'stale' : ''}`}
                   key={item.label}
                 >
                   <div>
@@ -219,7 +232,7 @@ export function NodeDrawer({
                   <small>
                     {item.sensor.value === null
                       ? 'No measurement'
-                      : !item.sensor.fresh
+                      : !snapshotCurrent || node.connectivity === 'offline' || !item.sensor.fresh
                         ? 'Stale observation'
                         : item.unit === 'raw'
                           ? 'Raw / uncalibrated'
@@ -263,6 +276,10 @@ export function NodeDrawer({
                 </select>
                 <small>{detail?.readings.length ?? 0} observations</small>
               </div>
+              <div className="history-summary" data-testid="history-summary">
+                <div><span>Recorded range</span><strong>{values.length ? `${Math.min(...values).toLocaleString()} – ${Math.max(...values).toLocaleString()}` : 'No values'} <small>{series.unit}</small></strong></div>
+                <div><span>Demo threshold</span><strong>{threshold === null ? 'Not applicable' : `${threshold.toLocaleString()} ${series.unit}`}</strong></div>
+              </div>
               <div className="chart-wrap">
                 {detail && hasChartData ? (
                   <ResponsiveContainer width="100%" height="100%" minWidth={0}>
@@ -271,7 +288,7 @@ export function NodeDrawer({
                       margin={{ top: 15, right: 15, left: -16, bottom: 0 }}
                       accessibilityLayer
                     >
-                      <CartesianGrid stroke="#29383e" strokeDasharray="3 5" vertical={false} />
+                      <CartesianGrid stroke="var(--line)" strokeDasharray="3 5" vertical={false} />
                       <XAxis
                         dataKey="timestamp"
                         type="number"
@@ -285,14 +302,14 @@ export function NodeDrawer({
                               })
                             : time(new Date(value).toISOString())
                         }
-                        stroke="#81959e"
+                        stroke="var(--muted)"
                         fontSize={11}
                         minTickGap={48}
                         tickLine={false}
                         axisLine={false}
                       />
                       <YAxis
-                        stroke="#81959e"
+                        stroke="var(--muted)"
                         fontSize={11}
                         tickLine={false}
                         axisLine={false}
@@ -300,10 +317,10 @@ export function NodeDrawer({
                       />
                       <Tooltip
                         contentStyle={{
-                          background: '#162226',
-                          border: '1px solid #34474d',
+                          background: 'var(--surface)',
+                          border: '1px solid var(--line)',
                           borderRadius: 6,
-                          color: '#edf5f6',
+                          color: 'var(--ink)',
                         }}
                         labelFormatter={(value) => dateTime(new Date(Number(value)).toISOString())}
                         formatter={(value) => [`${value} ${series.unit}`, series.label]}
@@ -311,11 +328,12 @@ export function NodeDrawer({
                       {threshold !== null && (
                         <ReferenceLine
                           y={threshold}
-                          stroke="#e6ae5a"
+                          ifOverflow="extendDomain"
+                          stroke="var(--warning)"
                           strokeDasharray="4 4"
                           label={{
                             value: 'Demo threshold',
-                            fill: '#e6ae5a',
+                            fill: 'var(--warning)',
                             fontSize: 10,
                             position: 'insideTopRight',
                           }}
@@ -324,9 +342,9 @@ export function NodeDrawer({
                       <Line
                         dataKey="value"
                         type={field === 'cover_displaced' ? 'stepAfter' : 'linear'}
-                        stroke="#45d7bf"
+                        stroke="var(--water)"
                         strokeWidth={2}
-                        dot={{ r: 2, fill: '#45d7bf', strokeWidth: 0 }}
+                        dot={{ r: 2, fill: 'var(--water)', strokeWidth: 0 }}
                         activeDot={{ r: 4 }}
                         connectNulls={false}
                         isAnimationActive={false}
@@ -367,7 +385,7 @@ export function NodeDrawer({
                 data={data}
                 busy={busy}
                 disabled={connectionError}
-                onSelect={() => dialog.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+                onSelect={() => dialog.current?.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}
                 onAction={onAction}
               />
             </section>

@@ -1,0 +1,66 @@
+import { expect, test } from '@playwright/test'
+
+test('simulator separates unsent selection from actual observed state and freezes on API loss', async ({ page, request }) => {
+  await request.post('/api/simulator/scenario', { data: { node_id: 'MH-002', scenario: 'normal' } })
+  await page.goto('/#simulator')
+  await page.getByLabel('Demo manhole').selectOption('MH-002')
+  const visual = page.getByTestId('manhole-visualizer')
+  await expect(visual).toHaveAttribute('data-mode', 'safe')
+  await page.getByRole('radio', { name: /Water overflow/ }).check()
+  await expect(page.getByTestId('scenario-intent')).toContainText('Selection only')
+  await expect(visual).toHaveAttribute('data-mode', 'safe')
+  await page.getByRole('button', { name: 'Trigger scenario', exact: true }).click()
+  await expect(visual).toHaveAttribute('data-mode', 'hazard')
+  await expect(page.getByRole('status').filter({ hasText: 'Scenario persisted' })).toBeVisible()
+  await page.route('**/api/summary', route => route.abort())
+  await page.getByRole('button', { name: 'Refresh API data' }).click()
+  await expect(visual).toHaveAttribute('data-mode', 'snapshot-stale')
+  await page.unroute('**/api/summary')
+  await request.post('/api/simulator/scenario', { data: { node_id: 'MH-002', scenario: 'normal' } })
+})
+
+test('gauges show threshold-relative observations and never calibrate raw or stale data', async ({ page }) => {
+  await page.goto('/')
+  await page.getByLabel('Selected overview node').selectOption('MH-003')
+  await expect(page.getByTestId('gauge-methane')).toContainText('150% of demo threshold')
+  await page.getByLabel('Selected overview node').selectOption('MH-008')
+  await expect(page.getByTestId('gauge-methane')).toContainText('No calibrated comparison')
+  await expect(page.getByTestId('gauge-methane').locator('.gauge-fill')).toHaveCount(0)
+  await page.getByLabel('Selected overview node').selectOption('MH-007')
+  await expect(page.getByTestId('gauge-methane')).toHaveAttribute('data-current', 'false')
+})
+
+test('drawer offers node navigation and readable history while stale snapshots make no fresh claims', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Inspect MH-003', exact: true }).click()
+  const drawer = page.getByRole('dialog')
+  await expect(drawer.getByTestId('history-summary')).toContainText('Recorded range')
+  await drawer.getByLabel('Inspect another node').selectOption('MH-008')
+  await expect(drawer.getByRole('heading', { name: 'MH-008', exact: true })).toBeVisible()
+  await expect(drawer).toContainText('Raw / uncalibrated')
+  await page.route('**/api/**', route => route.abort())
+  await expect(drawer.getByRole('alert').filter({ hasText: 'API disconnected' })).toBeVisible({ timeout: 18000 })
+  await expect(drawer.locator('.sensor-grid')).not.toContainText('Fresh observation')
+  await expect(drawer.locator('.node-state')).toContainText('Safety unconfirmed')
+  await page.keyboard.press('Escape')
+  await expect(drawer).not.toBeVisible()
+})
+
+test('reopening a failed detail snapshot cannot make cached readings fresh before retry succeeds', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Inspect MH-003', exact: true }).click()
+  const drawer = page.getByRole('dialog')
+  await expect(drawer.locator('.recharts-line')).toHaveCount(1)
+  await page.route('**/api/nodes/MH-003', route => route.abort())
+  await expect(drawer.getByRole('alert')).toBeVisible({ timeout: 18000 })
+  await page.keyboard.press('Escape')
+  await page.unroute('**/api/nodes/MH-003')
+  let release!: () => void
+  const waiting = new Promise<void>(resolve => { release = resolve })
+  await page.route('**/api/nodes/MH-003', async route => { await waiting; await route.abort() })
+  try {
+    await page.getByRole('button', { name: 'Inspect MH-003', exact: true }).click()
+    await expect(drawer.locator('.sensor-grid')).not.toContainText('Fresh observation')
+    await expect(drawer.locator('.node-state')).toContainText('Safety unconfirmed')
+  } finally { release() }
+})

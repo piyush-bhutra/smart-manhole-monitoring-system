@@ -1,9 +1,11 @@
-import { ArrowUpRight, Check, CheckCheck, Flame, Waves, ShieldAlert, Wind } from 'lucide-react'
+import { ArrowUpRight, Check, CheckCheck } from 'lucide-react'
 import type { Alert, AlertStatus, Snapshot } from '../types/api'
 import { canResolve, dateTime, hazardLabels, resolutionReason } from '../utils'
 import { StatusBadge } from './StatusBadge'
 
-const icons = { methane: Flame, h2s: Wind, overflow: Waves, cover: ShieldAlert }
+import { HazardSymbol } from './HazardSymbol'
+import { IncidentShell } from './IncidentShell'
+import { conditionView } from '../services/conditionView'
 
 export function AlertList({
   alerts,
@@ -33,17 +35,16 @@ export function AlertList({
   return (
     <div className={compact ? 'alert-feed' : 'incident-list'}>
       {alerts.map((alert) => {
-        const Icon = icons[alert.alert_type]
         const node = data.nodes.find((node) => node.id === alert.node_id)
-        const resolvable = canResolve(alert, node, data.summary)
+        const resolvable = !disabled && canResolve(alert, node, data.summary)
+        const channel = node ? conditionView(node, data.summary.demo_thresholds, !disabled).channels[alert.alert_type] : 'unknown'
+        const measuredHazard = channel === 'hazard'
+        const paused = disabled || !node || node.connectivity === 'offline' || channel === 'stale'
+        const condition = disabled ? 'API unavailable · safety unconfirmed' : measuredHazard ? 'Measured hazard persists' : channel === 'safe' ? (alert.status === 'resolved' ? 'Fresh normal observation' : 'Measured clear · awaiting closure') : node?.connectivity === 'offline' || channel === 'stale' ? 'Stale · clearance unconfirmed' : 'No fresh normal observation'
         return (
-          <article
-            key={alert.id}
-            className={`incident ${alert.status}`}
-            data-testid={`alert-${alert.id}`}
-          >
+          <IncidentShell key={alert.id} alert={alert} event={data.incidentEvents?.[alert.id]} paused={paused}>
             <div className="incident-icon">
-              <Icon size={18} />
+              <HazardSymbol kind={alert.alert_type} moving={measuredHazard && alert.status === 'active' && !paused} />
             </div>
             <div className="incident-main">
               <div className="incident-title">
@@ -61,15 +62,9 @@ export function AlertList({
                 {dateTime(compact ? alert.last_observed_at : alert.triggered_at)}{' '}
                 <span>· {alert.source === 'simulator' ? 'Simulated' : 'Hardware'}</span>
               </div>
-              {compact && alert.status !== 'resolved' && (
-                <small className="incident-condition">
-                  {resolvable
-                    ? 'Measured clear · awaiting closure'
-                    : node?.connectivity === 'offline'
-                      ? 'Stale · clearance unconfirmed'
-                      : 'No fresh normal observation'}
-                </small>
-              )}
+              <small className={`incident-condition ${measuredHazard ? 'condition-danger' : ''}`}>
+                {alert.status === 'resolved' ? `Incident closed · ${condition === 'Measured clear · awaiting closure' ? 'fresh normal observation' : condition}` : condition}
+              </small>
               {!compact && (
                 <div className="incident-observed">
                   Last observed {dateTime(alert.last_observed_at)}
@@ -114,7 +109,7 @@ export function AlertList({
                 </div>
               )}
             </div>
-          </article>
+          </IncidentShell>
         )
       })}
     </div>

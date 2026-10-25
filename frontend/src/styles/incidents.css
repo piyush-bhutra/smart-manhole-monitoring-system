@@ -1,0 +1,89 @@
+/* Milestone 4B: the same physical symbols across the incident desk and map. */
+.hazard-symbol { width: 40px; height: 40px; flex: none; overflow: visible; }
+.hazard-symbol .symbol-lid { transform-origin: 8px 23px; }
+.is-moving .symbol-plume { animation: plume-drift 2.8s ease-in-out infinite; }
+.is-moving .plume-two { animation-delay: -.9s; }
+.is-moving .plume-three { animation-delay: -1.8s; }
+.is-moving .symbol-water { animation: water-rise 2.5s ease-in-out infinite; }
+.is-moving .symbol-drop { animation: drop-fall 2.5s ease-in-out infinite; }
+.is-moving .symbol-lid { animation: lid-lift 3.3s ease-in-out infinite; }
+@keyframes plume-drift { 0%, 100% { transform: translateY(2px); opacity: .55; } 50% { transform: translateY(-3px); opacity: 1; } }
+@keyframes water-rise { 0%, 100% { transform: translateY(2px); } 50% { transform: translateY(-4px); } }
+@keyframes drop-fall { 0%, 100% { transform: translateY(-2px); opacity: .5; } 55% { transform: translateY(3px); opacity: 1; } }
+@keyframes lid-lift { 0%, 100% { transform: rotate(0); } 45%, 65% { transform: rotate(-12deg) translateY(-2px); } }
+
+.incident-ribbon { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; padding: 19px 24px; margin: 0 0 22px; background: #29312e; color: #fff9ec; border: 1px solid #38443c; border-left: 5px solid #d66a48; border-radius: 14px; box-shadow: 0 8px 22px #26302b12; transition: border-color .4s, background-color .4s; }
+.ribbon-signal { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #c5cfb84d; border-radius: 50%; color: #e7b58b; flex: none; }
+.ribbon-copy { display: grid; gap: 5px; flex: 1 1 220px; min-width: 0; }
+.ribbon-copy .eyebrow { color: #dcc1a2; letter-spacing: .15em; font-size: 10px; }
+.ribbon-copy strong { font-size: 18px; font-weight: 550; }
+.ribbon-copy > span:last-child { color: #bfc9c0; font-size: 12px; }
+.ribbon-count { display: flex; align-items: center; gap: 10px; padding: 0 22px; border-left: 1px solid #b7c4b733; }
+.ribbon-count b { font-family: Georgia, serif; font-size: 32px; font-weight: 400; }
+.ribbon-count > span { font-size: 10px; letter-spacing: .12em; }
+.incident-ribbon .button { background: #fff9ec; color: #29312e; border-color: #fff9ec; }
+.incident-ribbon.has-arrival { border-left-color: #ffac78; background: #43362e; }
+.recent-section { border-top: 3px solid #b75a3b; }
+.recent-section .section-heading { padding-bottom: 14px; }
+.incident { --incident-ink: #a13e29; --incident-wash: #fbefe7; position: relative; overflow: hidden; border-left: 3px solid var(--incident-ink); transition: background-color .45s, border-color .45s, box-shadow .25s; }
+.incident-overflow { --incident-ink: #2d6e85; --incident-wash: #edf4f4; }
+.incident-cover { --incident-ink: #946019; --incident-wash: #f8f0df; }
+.incident-h2s { --incident-ink: #856131; --incident-wash: #f8f1e5; }
+.incident .incident-icon { width: 54px; height: 58px; border: 1px solid color-mix(in srgb, var(--incident-ink) 23%, transparent); border-radius: 12px; color: var(--incident-ink); background: var(--incident-wash); flex: none; }
+.incident .incident-icon .hazard-symbol { width: 38px; height: 38px; }
+.incident-title strong, .incident-list .incident-title strong { font-size: 16px; }
+.incident-list .incident { padding: 20px 18px; margin-bottom: 10px; border-radius: 12px; border-top: 1px solid var(--line); border-right: 1px solid var(--line); background: var(--surface); }
+.incident-list .incident-icon { width: 54px; height: 58px; }
+.incident.acknowledged .incident-icon, .incident:has(.condition-danger) .incident-icon { color: var(--incident-ink); background: var(--incident-wash); }
+.network-map { height: 500px; }
+.incident .incident-condition { display: block; margin-top: 7px; font-size: 12px; line-height: 1.4; }
+.incident .condition-danger { color: var(--incident-ink); }
+.incident.acknowledged { border-left-style: double; border-left-width: 5px; background: #faf8f2; }
+.incident.resolved { border-left-color: #738373; background: #f1f4ed; }
+.incident.resolved .incident-icon { background: #e7ede2; color: #5a6d58; }
+.incident.motion-paused .incident-icon { color: #777b73; background: #eeeee7; border-color: #d8dbd1; }
+.incident:hover { box-shadow: 0 5px 16px #28352b0b; }
+.incident[data-event="arrival"] { animation: incident-arrival 1.1s cubic-bezier(.16,1,.3,1) both; animation-delay: var(--event-delay); }
+.incident[data-event="acknowledged"], .incident[data-event="resolved"] { animation: incident-settle .8s ease-out both; animation-delay: var(--event-delay); }
+.incident[data-event="arrival"]::after { content: 'NEW'; position: absolute; right: 10px; top: 6px; color: var(--incident-ink); font: 700 9px/1.2 ui-monospace, monospace; letter-spacing: .1em; }
+@keyframes incident-arrival { from { opacity: .2; transform: translateX(28px); box-shadow: inset 6px 0 var(--incident-ink); } 55% { opacity: 1; box-shadow: inset 0 0 0 2px var(--incident-ink); } to { opacity: 1; transform: translateX(0); box-shadow: inset 0 0 transparent; } }
+@keyframes incident-settle { from { transform: translateY(-3px); box-shadow: inset 0 0 0 2px #a9ac91; } to { transform: translateY(0); box-shadow: inset 0 0 transparent; } }
+.incident-actions .button { transition: background-color .2s, border-color .2s, transform .2s; }
+.incident-actions .button:active:not(:disabled) { transform: translateY(1px); }
+.alert-feed .incident { padding: 17px 14px; gap: 12px; margin-bottom: 8px; border-radius: 10px; }
+.alert-feed .incident-end { align-self: start; }
+.alert-feed .incident-icon { width: 43px; height: 48px; }
+.alert-feed .incident-icon .hazard-symbol { width: 32px; height: 32px; }
+.alert-feed .incident-title strong { font-size: 14px; }
+.alert-feed .incident-time { font-size: 10px; line-height: 1.5; }
+.alert-feed .incident-condition { font-size: 11px; }
+.alert-feed .badge { font-size: 10px; }
+.alert-feed { padding: 0 8px; }
+
+.pulse-map-icon { background: transparent; border: none; }
+.hazard-marker { position: relative; width: 50px; height: 50px; color: #a13e29; }
+.marker-symbols { position: relative; display: flex; align-items: center; justify-content: center; height: 44px; width: 44px; background: #fff9ee; border: 2px solid currentColor; border-radius: 14px; box-shadow: 0 3px 9px #17271b33; }
+.marker-symbols .hazard-symbol { width: 34px; height: 34px; }
+.multiple .marker-symbols { display: grid; grid-template-columns: 1fr 1fr; width: 50px; height: 50px; border-radius: 13px; padding: 3px; }
+.multiple .hazard-symbol { width: 21px; height: 21px; }
+.marker-symbols .symbol-overflow { color: #2d6e85; }
+.marker-symbols .symbol-cover { color: #946019; }
+.marker-symbols .symbol-h2s { color: #856131; }
+.marker-halo { position: absolute; inset: -5px 1px 1px -5px; border: 1px solid currentColor; border-radius: 19px; opacity: 0; pointer-events: none; }
+.mode-hazard .marker-halo { animation: marker-attention 3.6s ease-out infinite; }
+@keyframes marker-attention { 0%, 65%, 100% { opacity: 0; transform: scale(1); } 15% { opacity: .45; } 50% { opacity: 0; transform: scale(1.35); } }
+.marker-id { position: absolute; left: 22px; top: 45px; transform: translateX(-50%); white-space: nowrap; padding: 2px 5px; background: #fffaf0; border: 1px solid #c7c9ba; border-radius: 4px; color: #354239; font: 700 9px/1.3 ui-monospace, monospace; }
+.multiple .marker-id { top: 51px; left: 25px; }
+.mode-safe { color: #58765b; }
+.mode-unknown { color: #8a743b; }
+.mode-offline, .mode-snapshot-stale { color: #7b8079; }
+.mode-offline .marker-symbols, .mode-snapshot-stale .marker-symbols { background: #eeeee8; border-style: dashed; }
+.mode-offline .hazard-symbol, .mode-snapshot-stale .hazard-symbol { color: #7b8079; opacity: .6; }
+.marker-disconnected { position: absolute; top: -4px; right: -1px; display: grid; place-items: center; padding: 3px; border-radius: 50%; color: #fff; background: #737b73; }
+.pulse-map-icon:focus-visible { outline: 3px solid #293e30; outline-offset: 8px; border-radius: 13px; }
+.map-legend { flex-wrap: wrap; gap: 10px 17px; }
+.map-legend .hazard-symbol { width: 20px; height: 20px; }
+@media (prefers-reduced-motion: reduce) {
+  .hazard-symbol *, .marker-halo, .incident[data-event], .incident-ribbon { animation: none !important; transition: none !important; }
+  .incident, .incident-actions .button { transition: none !important; }
+}

@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { IncidentTracker } from '../services/incidentEvents'
 import { api } from '../services/api'
 import type { MonitorNode, Range, Reading, Snapshot } from '../types/api'
 
 export function useMonitor(selectedId: string | null, range: Range) {
+  const tracker = useRef(new IncidentTracker())
   const [data, setData] = useState<Snapshot | null>(null)
   const [error, setError] = useState('')
   const [detail, setDetail] = useState<{
@@ -20,7 +22,7 @@ export function useMonitor(selectedId: string | null, range: Range) {
     let timer: ReturnType<typeof setTimeout>
     let active: AbortController | null = null
     setLoading(true)
-    setDetailError('')
+    // A retry does not revalidate retained detail. Clear its error only on success.
     async function load() {
       active = new AbortController()
       const signal = AbortSignal.any([active.signal, AbortSignal.timeout(12000)])
@@ -31,7 +33,7 @@ export function useMonitor(selectedId: string | null, range: Range) {
           api.alerts(signal),
         ])
         if (!alive) return
-        setData({ summary, nodes, alerts })
+        setData({ summary, nodes, alerts, incidentEvents: tracker.current.update(alerts) })
         setError('')
         if (selectedId) {
           try {

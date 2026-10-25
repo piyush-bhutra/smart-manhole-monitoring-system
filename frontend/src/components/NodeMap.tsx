@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { CircleMarker, MapContainer, TileLayer, Tooltip, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import { LocateFixed, MapPin } from 'lucide-react'
-import type { MonitorNode } from '../types/api'
-import { colors, statusLabels } from '../utils'
+import { HazardMarker } from './HazardMarker'
+import { HazardSymbol } from './HazardSymbol'
+import type { Hazard, MonitorNode, Summary } from '../types/api'
+import { hazardLabels } from '../utils'
 import { fallbackRegion } from '../config'
 
 function MapBounds({ nodes, revision }: { nodes: MonitorNode[]; revision: number }) {
@@ -21,10 +23,14 @@ function MapBounds({ nodes, revision }: { nodes: MonitorNode[]; revision: number
 
 export function NodeMap({
   nodes,
+  thresholds,
+  snapshotCurrent,
   region = fallbackRegion,
   onSelect,
 }: {
   nodes: MonitorNode[]
+  thresholds: Summary['demo_thresholds']
+  snapshotCurrent: boolean
   region?: { name: string; center: [number, number] }
   onSelect: (id: string) => void
 }) {
@@ -52,6 +58,7 @@ export function NodeMap({
         <MapContainer
           center={region.center}
           zoom={15}
+          zoomAnimation={false}
           scrollWheelZoom={false}
           className="network-map"
           attributionControl={true}
@@ -68,26 +75,7 @@ export function NodeMap({
           {nodes
             .filter((node) => node.latitude !== null && node.longitude !== null)
             .map((node) => (
-              <CircleMarker
-                key={node.id}
-                center={[node.latitude!, node.longitude!]}
-                radius={9}
-                pathOptions={{
-                  color: '#18292a',
-                  weight: 3,
-                  fillColor: colors[node.computed_status],
-                  fillOpacity: 1,
-                }}
-                eventHandlers={{ click: () => onSelect(node.id) }}
-              >
-                <Tooltip direction="top">
-                  <strong>{node.id}</strong>
-                  <br />
-                  {node.name}
-                  <br />
-                  {statusLabels[node.computed_status]} · {node.is_demo ? 'Simulated' : 'Hardware'}
-                </Tooltip>
-              </CircleMarker>
+              <HazardMarker key={node.id} node={node} thresholds={thresholds} snapshotCurrent={snapshotCurrent} onSelect={onSelect} />
             ))}
         </MapContainer>
         <span className="map-location">
@@ -103,12 +91,8 @@ export function NodeMap({
         )}
       </div>
       <div className="map-legend">
-        {Object.entries(colors).map(([status, color]) => (
-          <span key={status}>
-            <i style={{ background: color }} />
-            {statusLabels[status as keyof typeof colors]}
-          </span>
-        ))}
+        {(Object.keys(hazardLabels) as Hazard[]).map(kind => <span key={kind}><HazardSymbol kind={kind} />{hazardLabels[kind]}</span>)}
+        <span>✓ Fresh normal</span><span>⊘ Offline / unconfirmed</span>
       </div>
     </section>
   )

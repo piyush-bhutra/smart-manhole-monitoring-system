@@ -14,6 +14,9 @@ import {
 import type { Scenario, Snapshot } from '../types/api'
 import { StatusBadge } from '../components/StatusBadge'
 import { dateTime } from '../utils'
+import { conditionView } from '../services/conditionView'
+import { ManholeVisualizer } from '../components/ManholeVisualizer'
+import { HazardSymbol } from '../components/HazardSymbol'
 
 const scenarios = [
   {
@@ -70,6 +73,7 @@ export function Simulator({
       setScenario(node.demo_scenario as Scenario)
   }, [node?.id, node?.demo_scenario])
   const unavailable = busy || disabled || !data.summary.demo_enabled || !node
+  const observed = node ? conditionView(node, data.summary.demo_thresholds, !disabled) : null
   useEffect(() => {
     if (result?.nodeId === node?.id)
       resultPanel.current?.scrollIntoView({
@@ -88,6 +92,11 @@ export function Simulator({
         <span className="demo-mode">
           {data.summary.demo_enabled ? 'Demo enabled' : 'Demo disabled'}
         </span>
+      </div>
+      <div className="scenario-journey" aria-label="Scenario workflow">
+        <span><b>01</b> Choose a scenario</span><ChevronRight size={17} />
+        <span><b>02</b> Send an observation</span><ChevronRight size={17} />
+        <span><b>03</b> Observe the response</span>
       </div>
       <div className="simulator-grid">
         <section className="scenario-section">
@@ -129,7 +138,7 @@ export function Simulator({
                   disabled={busy}
                 />
                 <span className="scenario-icon">
-                  <item.icon size={20} />
+                  {item.id === 'normal' ? <CheckCircle2 size={25} /> : <HazardSymbol kind={item.id} />}
                 </span>
                 <span>
                   <strong>{item.name}</strong>
@@ -139,13 +148,18 @@ export function Simulator({
               </label>
             ))}
           </fieldset>
+          <div className="scenario-intent" data-testid="scenario-intent">
+            <span className="eyebrow">READY TO SEND</span>
+            <strong>{scenarios.find(item => item.id === scenario)?.name}</strong>
+            <span>Selection only · the observed state changes after a successful send.</span>
+          </div>
           <div className="scenario-buttons">
             <button
               className="button primary"
               disabled={unavailable}
               onClick={() => node && onScenario(node.id, scenario)}
             >
-              <Play size={16} />
+              <Play size={16} className={busy ? 'sending-indicator' : ''} />
               {busy ? 'Sending...' : 'Trigger scenario'}
             </button>
             <button
@@ -187,7 +201,7 @@ export function Simulator({
         <aside className="simulation-status">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">SELECTED ASSET</span>
+              <span className="eyebrow">LIVE OBSERVED STATE</span>
               <h2>{node?.id || 'No demo nodes'}</h2>
             </div>
             <FlaskConical size={22} />
@@ -195,7 +209,9 @@ export function Simulator({
           {node && (
             <>
               <h3>{node.name}</h3>
-              <StatusBadge status={node.computed_status} />
+              <StatusBadge status={disabled ? 'unknown' : node.computed_status} label={disabled ? 'Safety unconfirmed' : undefined} />
+              {observed && <ManholeVisualizer view={observed} nodeId={node.id} threshold={data.summary.demo_thresholds.overflow} />}
+              <p className="observed-caption">Last received observation · independent of the selected scenario</p>
               <dl>
                 <div>
                   <dt>Data source</dt>

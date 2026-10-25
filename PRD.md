@@ -1,6 +1,6 @@
 # Product Requirements Document — Smart Manhole Monitoring System
 
-**Version:** 1.1 (Milestone 3, approved presentation requirements; 2026-10-13 UTC)  
+**Version:** 1.4 (Milestone 4C, complete UI polish and interaction refinement; 2026-10-25 IST)
 **Status:** Approved baseline for initial implementation (subject to user review)  
 **Project:** Smart-Manhole Gas, Overflow & Tamper Monitor  
 **Type:** Embedded Systems & IoT college project / municipal monitoring demonstrator  
@@ -36,7 +36,7 @@ Authentication, multi-tenant support, SMS, mobile app, predictive ML, field-cert
 
 ## 4. UX and visual specification
 
-- Desktop-first, responsive down to mobile, clean dark charcoal/navy control-room aesthetic with restrained teal/blue highlights, semantically meaningful red/amber/green/grey status colors, generous spacing, strong information hierarchy.
+- Smart Manhole Pulse: warm porcelain/ivory surfaces, graphite navigation and typography, vermilion hazards, ochre uncertainty, sage normal conditions and muted industrial blue for water. Milestone 4A targets desktop/projector use; the user excluded new mobile layout and responsive refinement work. Preserve existing navigation and layout functionality.
 - Modern typography, accessible contrast, subtle hover/focus feedback, smooth 150–250ms transitions; animate chart updates and alert arrivals lightly, avoiding heavy 3D/particle effects and excessive libraries.
 - Professional—not futuristic clutter, fake numerical precision, or an incoherent collection of charts.
 - Navigation: **Dashboard**, **Alerts**, **Simulator**. Node detail as modal/drawer/panel on dashboard, not an extra mandatory page.
@@ -261,3 +261,131 @@ API v1.1 adds node/status/session metadata and POST /api/demo/baseline; original
 request fields and telemetry 201 response remain compatible. See the maintained
 API contract for exact shapes. Deferred scope remains unchanged: no cloud services,
 authentication rollout, ML, remote actuators or field-certified safety claims.
+
+## 17. Approved Milestone 4A — Visual Foundation and Reactive Manhole Visualizer
+
+Approved on 2026-10-25 IST following the read-only engineering audit. The user
+authorized implementation, frontend checks, browser verification, visual inspection
+and documentation. No commit or push is authorized. Stop for review before 4B.
+
+### Scope and visual direction
+- Establish a distinctive warm editorial-industrial design with semantic color
+  tokens, clear typography and a prominent selected-asset panel. Restyle shared
+  surfaces, controls, maps and charts consistently using the existing dependencies.
+- Add a reusable inline SVG manhole cutaway with independently reactive gas,
+  water and cover layers. CSS supplies bounded motion and state transitions.
+- Show normal, methane, H2S, overflow, displaced cover, combined hazards, missing
+  channels, raw-only gas, stale observations, offline and API-unavailable states.
+- Desktop/projector experience only for new design work. Existing mobile tests
+  remain regression checks, not a new mobile design deliverable.
+
+### Engineering and truthfulness requirements
+- Consume the backend's effective `node.sensors` observations, connectivity,
+  safety and freshness plus `summary.demo_thresholds`. Do not derive physical
+  conditions from incident acknowledgement or the simulator's selected radio.
+- Preserve all backend routes, SQLite schema/persistence, sensor units, source
+  identification, inclusive thresholds and simulator/worker behavior.
+- Never convert missing values to zero or raw gas to PPM. Unknown cover position
+  must not look like a confirmed seated cover. Water height is a schematic ratio
+  to the configured overflow threshold, not chamber capacity or percentage full.
+- Preserve all simultaneous hazards. A missing/stale secondary channel must not
+  hide a fresh hazard. Apply historical styling per channel, including the cover.
+- Offline or failed API snapshots cannot establish current safety. Freeze motion,
+  retain last-known measurements explicitly, and keep telemetry receipt time
+  distinct from API-query time. Acknowledgement does not animate physical recovery.
+- Keep visualizer identity stable across repeated readings and polls; use the
+  existing polling owner and no new polling loops. Honor reduced-motion preferences
+  with static hazard geometry, icons and labels. No essential information relies
+  solely on color or animation.
+
+### Acceptance criteria
+1. Fresh normal and each hazard type produce distinct, understandable visuals.
+2. Combined hazards, inclusive thresholds, raw/partial/stale/offline data and API
+   outage/recovery are tested without modifying backend contracts.
+3. New readings and acknowledgement preserve illustration identity and hazards;
+   only fresh normal observations can visually clear a measured hazard.
+4. Frontend lint, typecheck, production build and complete browser suite pass.
+5. Desktop screenshots and visual inspection cover normal, hazard, partial and
+   offline states; actual test outcomes are recorded in PROJECT_STATE.md.
+
+### Deferred stages
+4B was subsequently authorized and is specified in section 18. Later polish may refine
+detail/chart/simulator layouts further. Opt-in browser sounds remain optional and
+are not part of 4A. No firmware, calibration, wiring or actuator changes are included.
+
+## 18. Approved Milestone 4B — Animated Incident System & Hazard-Aware Map
+
+User authorized implementation on 2026-10-25 IST, preserving the 4A visual identity
+and reactive cutaway. Desktop scope remains; no mobile redesign, dependencies,
+backend contracts, schema, simulator/worker or hardware changes. No commits,
+pushes or next milestone without approval. Sound belongs to 4D, not this milestone.
+
+### Presentation and engineering requirements
+- A prominent live incident watch introduces new emergencies and links to the
+  incident desk. Hazard cards and map markers share recognizable SVG gas plumes,
+  water rise/drop and lifted-cover symbols, with text labels and meaningful static
+  geometry. Motion complements the porcelain, graphite and muted hazard palette.
+- Track incident IDs and status changes in the existing polling owner, across
+  successful complete Flask snapshots. Treat initial history as a silent baseline.
+  New active identities receive a bounded entrance; observation timestamps,
+  reading IDs, ordinary polls and list order changes cannot manufacture arrivals.
+- Retain seen identities during API failures. Navigation and recovery may resume
+  only the remaining animation interval, never a full new entrance. A full page
+  reload starts a new silent baseline. There is no additional polling loop.
+- Acknowledgement quiets card attention while preserving measured hazard symbols
+  and explicit physical-condition text. Resolution requires the existing backend
+  workflow; confirmed lifecycle changes settle visually. Keep outgoing records
+  briefly in applicable status filters rather than removing them instantaneously.
+- Map markers derive physical conditions from the 4A effective-sensor adapter and
+  server thresholds, independently of incident workflow. Show simultaneous hazards,
+  unknown/raw conditions, offline/historical data and failed API snapshots truthfully.
+  Stale observations do not animate as current hazards; accessible labels update.
+- Use bounded entrance/settling motion and restrained ongoing physical-hazard
+  pulses. Honor reduced motion with static symbols and retain keyboard interaction,
+  readable labels and a polite announcement of genuinely new incidents.
+
+### Acceptance
+Run lint, typecheck, production build and browser regression checks. Verify genuine
+Flask incident creation, repeated hazardous readings, acknowledgement, normal
+restoration and resolution. Test polling/navigation/recovery identity, filtered
+lifecycle changes, multi-hazard/offline/API failure, reduced motion and map cleanup.
+Visually inspect dashboard and Alerts at desktop sizes and capture each hazard.
+Record actual results and limits in PROJECT_STATE.md; stop for user review.
+
+## 19. Approved Milestone 4C — Complete UI Polish & Interaction Refinement
+
+User authorized 4C following 4A and 4B on 2026-10-25 IST. Preserve those designs,
+the reactive illustration and incident/map semantics. Improve desktop presentation
+at 1366px and 1920px through meaningful hierarchy, spacing, typography and workflow
+feedback. No commits, pushes or 4D work without approval; sound remains deferred.
+
+- Dashboard: improve operational type sizes, sensor composition and table clarity.
+  Add gauges comparing actual calibrated observations with server-provided demo
+  thresholds. Explicit percentages mean percentage of a threshold, not percentage
+  of physical capacity. Raw/missing values cannot receive calibrated fill; historical
+  comparisons remain muted and explicitly last-known.
+- Alerts: retain the existing arrival/lifecycle tracking, refine readable card
+  metadata, status/action targets and filter surfaces, and provide a clear reset.
+  No change to acknowledgement, resolution eligibility or hazard detection.
+- Simulator: present a choose/send/observe workspace with recognizable static
+  scenario tiles and an adjacent live cutaway. Selection must never alter observed
+  telemetry. Only actual Flask snapshots update the illustration; unavailable or
+  stale snapshots must not look currently safe. Preserve persisted-result links,
+  normal restoration, baseline behavior and hardware exclusions.
+- Node details: direct node selection, clearer identity/source/freshness, compact
+  readable sensor cards, larger history chart and observed min/max summary with
+  units. Render configured demo threshold even outside the data range. Preserve
+  actual timestamps, missing-data gaps, raw labels and cover step interpolation.
+  Failed detail data remains unconfirmed through retry/reopen until successfully
+  fetched; changing node/range cannot show another node's history.
+- Microinteractions: restrained hover/focus/pressed/loading feedback, accessible
+  native controls, keyboard modal behavior and reduced-motion support. Avoid
+  decorative repeated motion or unnecessary dependencies.
+
+Acceptance: lint, typecheck, production build and complete browser regression
+suite; test selection versus observed state, raw/stale gauges, drawer navigation,
+failure/recovery and retained 4A/4B behaviors. Visually inspect Dashboard, Alerts,
+Simulator and node details at both desktop widths. Maintain backend APIs, database
+schema, simulator/worker logic, telemetry contracts and future ESP32 compatibility.
+Record actual outcomes in PROJECT_STATE.md; physical hardware/projector validation
+is not implied by desktop browser tests.

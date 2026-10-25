@@ -17,6 +17,8 @@ import { NodeMap } from '../components/NodeMap'
 import { AlertList } from '../components/AlertList'
 import { SensorOverview } from '../components/SensorOverview'
 
+import { IncidentRibbon } from '../components/IncidentRibbon'
+
 export function Dashboard({
   data,
   focusedId,
@@ -38,10 +40,11 @@ export function Dashboard({
 }) {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<NodeStatus | 'all'>('all')
-  const openIncidents = data.alerts.filter((alert) => alert.status !== 'resolved')
+  const openIncidents = data.alerts.filter((alert) => alert.status !== 'resolved' || data.incidentEvents?.[alert.id]?.kind === 'resolved')
   const priorityIncidents = openIncidents.length
     ? [...openIncidents].sort(
         (a, b) =>
+          Number(data.incidentEvents?.[b.id]?.kind === 'arrival') - Number(data.incidentEvents?.[a.id]?.kind === 'arrival') ||
           Number(
             canResolve(
               a,
@@ -120,10 +123,13 @@ export function Dashboard({
           </div>
         ))}
       </div>
+      <IncidentRibbon data={data} disabled={disabled} onOpen={onAlerts} />
       {data.nodes.length > 0 && (
         <SensorOverview
           node={data.nodes.find((node) => node.id === focusedId) || data.nodes[0]}
           nodes={data.nodes}
+          thresholds={data.summary.demo_thresholds}
+          snapshotCurrent={!disabled}
           onFocus={onFocus}
           onInspect={onSelect}
         />
@@ -131,6 +137,8 @@ export function Dashboard({
       <div className="overview-grid">
         <NodeMap
           nodes={data.nodes}
+          thresholds={data.summary.demo_thresholds}
+          snapshotCurrent={!disabled}
           region={data.summary.demo_session?.region}
           onSelect={onSelect}
         />

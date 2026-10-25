@@ -148,7 +148,7 @@ export default function App() {
             <Radio size={25} />
           </span>
           <span>
-            Smart Manhole<small>MONITORING SYSTEM</small>
+            Manhole <b>Pulse</b><small>INFRASTRUCTURE INTELLIGENCE</small>
           </span>
         </a>
         <div className="workspace-label">
@@ -156,7 +156,7 @@ export default function App() {
             <ShieldCheck size={16} />
           </span>
           <span>
-            Municipal operations<small>Educational IoT project</small>
+            VIT Vellore<small>Campus monitoring network</small>
           </span>
           <ChevronRight size={14} />
         </div>
@@ -207,7 +207,7 @@ export default function App() {
             >
               <Menu size={20} />
             </button>
-            <span>Control room</span>
+            <span>OPERATIONS / VIT VELLORE</span>
             <ChevronRight size={13} />
             <strong>
               {page === 'dashboard' ? 'Overview' : page === 'alerts' ? 'Alerts' : 'Simulator'}
@@ -252,7 +252,7 @@ export default function App() {
               <h1>{titles[page]}</h1>
               <p>
                 {page === 'dashboard'
-                  ? 'Gas, overflow and cover integrity across your monitored network.'
+                  ? 'A clearer view of what’s happening below.'
                   : page === 'alerts'
                     ? 'Track measured events and their operator review status.'
                     : 'Synthetic events, real persistence. Hardware records stay separate.'}
@@ -424,6 +424,7 @@ export default function App() {
             notice={notice}
             busy={busy}
             onRange={setRange}
+            onSelect={setSelectedId}
             onClose={() => setSelectedId(null)}
             onAction={onAction}
           />

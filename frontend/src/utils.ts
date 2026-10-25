@@ -15,7 +15,8 @@ export const hazardLabels = {
   overflow: 'Water overflow',
   cover: 'Cover displaced',
 }
-export const colors = { safe: '#43d3a3', hazard: '#fb7185', offline: '#82929a', unknown: '#f4bf65' }
+// Shared semantic tokens also style Leaflet SVG paths.
+export const colors = { safe: 'var(--safe)', hazard: 'var(--hazard)', offline: 'var(--offline)', unknown: 'var(--warning)' }
 export function dateTime(value: string | null) {
   return value
     ? new Date(value).toLocaleString([], {

@@ -3,6 +3,8 @@ import { Search, ShieldAlert } from 'lucide-react'
 import type { AlertStatus, Hazard, Snapshot } from '../types/api'
 import { AlertList } from '../components/AlertList'
 
+import { IncidentRibbon } from '../components/IncidentRibbon'
+
 export function Alerts({
   data,
   busy,
@@ -30,7 +32,7 @@ export function Alerts({
     (alert) =>
       (focusId === null || alert.id === focusId) &&
       (status === 'all' ||
-        (status === 'unresolved' ? alert.status !== 'resolved' : alert.status === status)) &&
+        (status === 'unresolved' ? (alert.status !== 'resolved' || data.incidentEvents?.[alert.id]?.kind === 'resolved') : (alert.status === status || data.incidentEvents?.[alert.id]?.from === status))) &&
       (type === 'all' || alert.alert_type === type) &&
       (severity === 'all' || alert.severity === severity) &&
       `${alert.node_id} ${data.nodes.find((node) => node.id === alert.node_id)?.name || ''} ${alert.alert_type}`
@@ -39,6 +41,7 @@ export function Alerts({
   )
   return (
     <section className="alerts-page">
+      <IncidentRibbon data={data} disabled={disabled} />
       {focusId !== null && (
         <div className="focused-incident">
           Incident #{focusId}
@@ -85,6 +88,7 @@ export function Alerts({
           </h2>
         </div>
         <div className="list-controls">
+          {(search || type !== 'all' || severity !== 'all' || status !== 'unresolved') && <button className="button secondary" onClick={() => { setSearch(''); setType('all'); setSeverity('all'); setStatus('unresolved'); onClearFocus() }}>Clear filters</button>}
           <select
             aria-label="Filter alert type"
             value={type}
