@@ -11,6 +11,11 @@ Physical ESP32 transport/calibration is not yet verified.
 - [Actual implementation, tests and developer handoff](PROJECT_STATE.md)
 - [API contract](docs/api-contract.md)
 - [Architecture and hardware integration](docs/integration.md)
+- [ESP32 teammate integration guide](docs/HARDWARE_INTEGRATION_GUIDE.md) — exact payload, LAN setup, electrical checks and physical acceptance checklist
+
+For a fresh clone, use branch `codex/smart-manhole-pulse-4a` and complete the
+one-time installation below before starting the launcher. Local dependencies and
+databases are deliberately not versioned. The redesign is not yet merged into main.
 
 ## Start the Presentation
 
@@ -169,7 +174,7 @@ An offline node's current safety is unknown, even if its last measurement was no
 API-query time is not sensor receipt time. History uses numeric timestamps and
 breaks gaps beyond freshness timeout; sparse seeded observations appear as points.
 
-## Hardware-Only Testing
+## Hardware-Only Testing (laptop-local)
 
 Stop the demo launcher/worker first. From backend/:
 
@@ -188,6 +193,12 @@ never PPM; water_level_cm means height, not distance to the transducer.
 GPIO, serial ports, calibration and geometry belong in firmware/an adapter.
 See docs/integration.md for PowerShell/curl JSON examples.
 No authentication, public hosting or remote actuator control is implemented.
+
+The loopback command above is for tests on the laptop. An ESP32 cannot reach the
+laptop through its own `127.0.0.1`. For genuine device telemetry, follow the
+[LAN startup and registration procedure](docs/HARDWARE_INTEGRATION_GUIDE.md#e-local-wi-fi-connection-procedure),
+which binds Flask explicitly for a trusted LAN and uses the laptop's reachable IP.
+Cellular access is a separate deployment path; no public endpoint is configured.
 
 ## Verification
 

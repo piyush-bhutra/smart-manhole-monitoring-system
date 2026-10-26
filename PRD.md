@@ -1,7 +1,7 @@
 # Product Requirements Document — Smart Manhole Monitoring System
 
-**Version:** 1.4 (Milestone 4C, complete UI polish and interaction refinement; 2026-10-25 IST)
-**Status:** Approved baseline for initial implementation (subject to user review)  
+**Version:** 1.5 (Milestones 4A–4D completed; hardware handoff audit, 2026-10-26 IST)
+**Status:** Software implemented and verified; physical hardware integration pending
 **Project:** Smart-Manhole Gas, Overflow & Tamper Monitor  
 **Type:** Embedded Systems & IoT college project / municipal monitoring demonstrator  
 **Primary target:** A polished, reliable, locally runnable full-stack website, built in one evening, compatible with future ESP32 integration.
@@ -419,3 +419,25 @@ verify actual Flask hazard lifecycle with enabled audio, silent polling/navigati
 muting, grouped arrivals, recovery and unavailable/blocked audio. Inspect Dashboard,
 Alerts, Simulator and node details at 1366px and 1920px. Browser scheduling checks
 do not establish loudness on the professor's presentation speakers.
+
+## 21. Hardware integration handoff requirements
+
+The approved handoff is documented in [HARDWARE_INTEGRATION_GUIDE.md](docs/HARDWARE_INTEGRATION_GUIDE.md).
+No actual firmware sketch/build project is present in this repository. The teammate
+must provide and review the physical sketch and confirm the final board, wiring,
+calibration, local buzzer/LED/RFID behavior, GPS and any cellular/relay additions.
+Historical Review-I pins are not verified wiring. RC522, fan and buzzer control have
+no implemented HTTP fields or remote commands.
+
+Preserve the implemented flat JSON contract: registered non-demo node, explicit
+hardware source, at least one non-null sensor, raw/calibrated gas separation,
+water height in centimetres, boolean cover state and optional valid coordinates.
+Server receipt time drives freshness; omitted channels retain their latest grouped
+observations until stale. No heartbeat-only or idempotent buffered-upload API exists.
+
+Local Wi-Fi testing requires explicit LAN binding and a reachable laptop IP; the
+demo launcher remains loopback-only. Cellular requires a separately reviewed
+reachable deployment, authentication/TLS strategy, modem power and operator data
+service. The present unauthenticated Flask development server is not a public
+deployment. No API, database schema, simulator or firmware changes are part of this
+documentation handoff. Main-branch integration requires explicit owner approval.

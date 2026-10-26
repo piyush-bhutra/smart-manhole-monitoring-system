@@ -1,13 +1,59 @@
 # PROJECT_STATE - Smart Manhole Monitoring System
 
-**Updated:** 2026-10-25 IST.
-**Milestone:** 4D approved for final audit and checkpoint publishing.
-**Approval:** User authorized a verified 4D commit and normal push to the existing
-development-branch upstream, with no main merge or history rewrite. The published 4A–4C baseline is
+**Updated:** 2026-10-26 IST.
+**Milestone:** 4A–4D published; software verified for hardware-team handoff.
+**Approval:** User authorized the final repository audit, integration documentation
+checkpoint and normal push to the existing development upstream. Main merge requires
+separate explicit approval. The published 4A–4C baseline is
 `e8be03fa89bc52c32b3cf036bd5ea0b14e624715` on `codex/smart-manhole-pulse-4a`,
 tracking `origin/codex/smart-manhole-pulse-4a`. M1–M3 remains historical context.
 **Sources:** PRD.md records approved scope; docs/api-contract.md v1.1 records actual
 wire formats; README.md documents startup, configuration and the presentation script.
+
+## Final hardware handoff audit — 2026-10-26
+
+Published audio checkpoint: `4f92ca14e6740244c55c215bb8f79cf2673f3a1d`.
+Fetch confirmed the development branch synchronized with its existing origin
+upstream. `origin/main` at `dd41d8a3fb21fd13faac4282867d6e78ca54513c` is an ancestor;
+the two redesign commits are the outstanding software difference before this
+documentation checkpoint. No main merge, branch change or history rewrite performed.
+
+Created `docs/HARDWARE_INTEGRATION_GUIDE.md`, linked it from README, and updated
+PRD's implemented milestone status and hardware boundaries. Guide derived from
+actual validation/ingestion/routes/models/configuration/tests; electrical guidance
+links manufacturer documents and clearly separates chip ratings from breakout boards.
+No firmware sketch or firmware build project found. No application code, dependency,
+API contract, database schema, simulator or hazard-detection change was necessary.
+
+Fresh checks:
+- Frontend lint, typecheck and production build passed.
+- Backend: **46 tests passed (11.55s)**; `pip check` found no broken requirements.
+- Standalone HTTP smoke passed all nine exercised routes, SQLite queries, partial
+  hardware ingestion and incident lifecycle against its own temporary database.
+- Edge Playwright: **42 tests passed (1.6m)**, covering all views, gas/water/cover
+  motion, acknowledgement/clearance/resolution, stale/offline/partial/raw/simultaneous
+  states, audio opt-in/deduplication/recovery and persistence across worker ticks.
+- Documented `start-demo.ps1 -BackendPort 5001 -FrontendPort 5174` reached Ready.
+  Audit explicitly overrode DATABASE_URL to the ignored
+  `backend/.tmp/handoff-audit-20261026.db`; the existing development database was
+  preserved. Test-generated demo readings remain confined to that audit database.
+  Audit launcher and its child services were stopped after verification.
+
+The repository versions the complete React/Flask application, SQLite models/setup,
+worker, launcher, tests, lockfile and configuration examples. `.gitignore` excludes
+dependencies, virtual environments, instance databases/backups/locks, secrets,
+temporary files and generated browser/build outputs. Prior review GIF/JPG and note
+remain untracked and excluded from commits, without removal. No verified firmware
+pin map, calibration, real ESP32 transport, RFID workflow or cellular deployment exists.
+
+Software is suitable for an owner-approved development-to-main merge on the audited
+ancestry, with no detected regression or divergence. Physical handoff still requires
+the actual sketch, confirmed hardware inventory/power/wiring, sensor calibration,
+LAN connectivity and genuine telemetry checks. Public exposure is blocked by absent
+authentication/production hosting; SIM800L also needs validated supply, 2G data/APN
+and a reachable endpoint. No public deployment or certified safety readiness is claimed.
+The handoff commit cannot embed its own hash; use Git history and upstream tracking
+for its final identity. Do not infer main-merge authorization from this checkpoint.
 
 ## Milestone 4D — Intelligent Alert Sounds & Final Presentation Readiness
 
