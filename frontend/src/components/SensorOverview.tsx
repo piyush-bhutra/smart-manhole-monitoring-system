@@ -7,8 +7,9 @@ import { ManholeVisualizer } from './ManholeVisualizer'
 import { ThresholdGauge } from './ThresholdGauge'
 
 export function SensorOverview({
-  node, nodes, thresholds, snapshotCurrent, onFocus, onInspect,
+  node, nodes, thresholds, snapshotCurrent, onFocus, onInspect, sample = false,
 }: {
+  sample?: boolean
   node: MonitorNode
   nodes: MonitorNode[]
   thresholds: Summary['demo_thresholds']
@@ -39,7 +40,7 @@ export function SensorOverview({
         <ManholeVisualizer view={view} nodeId={node.id} threshold={thresholds.overflow} />
         <div className="asset-readings">
           <div className="asset-identity">
-            <span className="eyebrow">{node.id} <span className="identity-divider">/</span> {node.is_demo ? 'SIMULATED TELEMETRY' : 'HARDWARE TELEMETRY'}</span>
+            <span className="eyebrow">{node.id} <span className="identity-divider">/</span> {sample ? 'SAMPLE READINGS' : node.is_demo ? 'SIMULATED TELEMETRY' : 'HARDWARE TELEMETRY'}</span>
             <h3>{node.name}</h3>
             <div className="node-state">
               <span className={`connectivity ${historical ? 'offline' : node.connectivity}`}>
@@ -59,8 +60,8 @@ export function SensorOverview({
                   <small>{condition === 'unknown' ? 'No measurement'
                     : condition === 'stale' ? 'Last known · not current'
                       : condition === 'raw' ? 'Uncalibrated · safety unknown'
-                        : condition === 'hazard' ? 'Measured hazard'
-                          : 'Current measurement'}</small>
+                        : condition === 'hazard' ? (sample ? 'Sample hazard' : 'Measured hazard')
+                          : sample ? 'Sample reading' : 'Current measurement'}</small>
                   {item.kind !== 'cover' && <ThresholdGauge kind={item.kind} value={item.sensor.value} threshold={thresholds[item.kind]} unit={item.unit} condition={condition} />}
                 </div>
               )
@@ -73,7 +74,7 @@ export function SensorOverview({
         </div>
       </div>
       <div className="overview-receipt">
-        <span>Last telemetry <strong>{dateTime(node.last_seen_at)}</strong></span>
+        <span>{sample ? 'Sample timeline' : 'Last telemetry'} <strong>{dateTime(node.last_seen_at)}</strong></span>
         <span>Schematic · water relative to overflow threshold · not to scale</span>
       </div>
     </section>

@@ -8,7 +8,7 @@ export function IncidentRibbon({ data, disabled, onOpen }: { data: Snapshot; dis
   const active = data.alerts.filter(a => a.status === 'active').length
   return <div className={`incident-ribbon ${newest && !disabled ? 'has-arrival' : ''}`}>
     <span className="ribbon-signal"><Radio size={22} /></span>
-    <div className="ribbon-copy"><span className="eyebrow">LIVE INCIDENT WATCH</span>
+    <div className="ribbon-copy"><span className="eyebrow">{data.sample ? 'SAMPLE INCIDENT WATCH' : 'LIVE INCIDENT WATCH'}</span>
       <strong>{disabled ? 'Connection interrupted · last known incidents' : newest ? `${hazardLabels[newest.alert_type]} · ${newest.node_id}` : active ? `${active} incident${active === 1 ? '' : 's'} awaiting acknowledgement` : 'No incidents awaiting acknowledgement'}</strong>
       <span>Workflow status does not establish physical safety.</span>
     </div>

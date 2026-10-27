@@ -1,7 +1,7 @@
 # PROJECT_STATE - Smart Manhole Monitoring System
 
-**Updated:** 2026-10-26 IST.
-**Milestone:** 4A–4D published; software verified for hardware-team handoff.
+**Updated:** 2026-10-27 IST.
+**Milestone:** 4A–4D published; built-in dashboard sample scenarios implemented and verified locally.
 **Approval:** User authorized the final repository audit, integration documentation
 checkpoint and normal push to the existing development upstream. Main merge requires
 separate explicit approval. The published 4A–4C baseline is
@@ -9,6 +9,73 @@ separate explicit approval. The published 4A–4C baseline is
 tracking `origin/codex/smart-manhole-pulse-4a`. M1–M3 remains historical context.
 **Sources:** PRD.md records approved scope; docs/api-contract.md v1.1 records actual
 wire formats; README.md documents startup, configuration and the presentation script.
+
+## Built-in dashboard sample scenarios — 2026-10-27
+
+User approved the design and implementation in chat, then explicitly authorized
+committing and pushing the verified changes to `codex/dashboard-demo-scenarios`,
+based on `337efae`. Main merge and deployment require separate authorization.
+The historical publishing and main-merge notes below describe the earlier handoff.
+
+Implemented Live / Demo scenarios tabs inside the existing website. Demo entry is
+available even when the initial API connection fails. Selecting one of three samples
+automatically runs a 48-second sequence; Restart starts it again, and completion
+holds the final state. Samples cover a developing methane incident, overflow/H2S/
+cover incidents across three campus locations, and combined gas/overflow with
+independent recovery at one location.
+
+Architecture and files:
+- `services/sampleScenarios.ts`: pure browser-owned snapshots, eight fictional
+  catalogue locations, cumulative one-second history and consistent incident times.
+- `hooks/useSamplePlayback.ts`: bounded clock and independent incident tracker per
+  mounted run, with cleanup on restart/scenario change/mode exit.
+- `pages/SampleWorkspace.tsx`, `components/WorkspaceMode.tsx`, `styles/samples.css`:
+  clearly labelled sample presentation using the existing Dashboard, Alerts,
+  NodeDrawer, cutaway, map markers and SoundControl.
+- App mounts either LiveWorkspace or SampleWorkspace. Unmounting LiveWorkspace
+  cancels polling/detail loads and disposes sound. Samples neither fetch nor mutate
+  API data; all inspection/history stays local and incident actions are read-only.
+- Small shared presentation changes add a frontend-only Snapshot.sample indicator,
+  sample receipt/history captions and disabled sample incident actions. Actual API
+  contracts, backend, schema, simulator, worker and dependencies are unchanged.
+
+Verification on final application files:
+- Frontend lint, TypeScript typecheck and production build: passed.
+- Complete installed-Edge Playwright suite: **56 passed in 1.8 minutes** (42 existing
+  plus 14 new checks). Coverage includes initial API failure, no API activity during
+  playback/details, automatic sequence progression, combined partial recovery,
+  completion hold, restart/switch/mode cleanup, real Live return, local history,
+  sound opt-in/reset, reduced motion, keyboard focus and mobile controls.
+- Direct browser visual inspection with API blocked: gas, combined hazards, partial
+  recovery, multiple locations and completion at 1366×768 / 1920×1080, plus 390×844
+  mobile bounds. No horizontal overflow. The full cutaway/condition caption fits on
+  entry and during hazards at 1366×768. Sample-only compact styling hides comparison
+  gauges on short presentation screens; sensor values and threshold geometry remain.
+- Separate real-timer check reached 17 seconds of combined gas/overflow playback with
+  API blocked and no page JavaScript errors; synthetic timer tests are not the sole
+  evidence of automatic behavior. Deliberately blocked initial Live requests produce
+  expected browser network errors. No backend success was substituted into samples.
+- Independent read-only review identified a sample-history regression: sparse
+  reconstructed observations could disappear and move last_observed_at backwards
+  on recovery. A new failing test reproduced it; cumulative history fixed it.
+  Keyboard focus loss after remount was also reproduced and corrected, including
+  mode-tab arrow/Home/End navigation. Final suite includes both regressions.
+- Build: main JS 451.78 kB (138.45 gzip), lazy drawer 372.17 kB (109.64 gzip), CSS
+  88.40 kB (22.30 gzip). `git diff --check` passes.
+
+Review website: http://127.0.0.1:5175 (Flask review port 5003). Launcher used
+`DATABASE_URL=sqlite:///D:/DA's/Embedded Project/backend/.tmp/sample-review-20261027.db`.
+Existing development data was preserved; legacy integration tests appended only to
+the separate review database. Backend pytest was not rerun: no backend files changed.
+Ignored screenshots are under `frontend/.tmp/samples-*.png`, including
+`samples-final-real-playback.png`. Sample-only startup instructions are in README.
+
+Limits: the frontend must first load and remain available for reopening/reloading.
+No installable offline cache, second site or public hosting was added. Map tiles
+still depend on internet, while sample values, markers and lists do not. Sound
+remains explicitly opt-in and resets on restart/scenario/mode changes. No physical
+ESP32, calibration, speaker loudness or actual projector validation is claimed.
+Pause, seek, speed control, automatic looping and a scenario editor remain deferred.
 
 ## Final hardware handoff audit — 2026-10-26
 

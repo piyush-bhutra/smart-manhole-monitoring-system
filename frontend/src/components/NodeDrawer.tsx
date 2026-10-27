@@ -170,12 +170,12 @@ export function NodeDrawer({
             </div>
             <div className="source-banner">
               <span className={`status-dot ${node.is_demo ? 'demo' : 'hardware'}`} />
-              <strong>{node.is_demo ? 'SIMULATED DATA' : 'HARDWARE TELEMETRY'}</strong>
+              <strong>{data.sample ? 'SIMULATED DEMONSTRATION' : node.is_demo ? 'SIMULATED DATA' : 'HARDWARE TELEMETRY'}</strong>
               <span>{node.location_description}</span>
             </div>
             <div className="telemetry-time">
               <Clock size={14} />
-              Last telemetry: {dateTime(node.last_seen_at)}
+              {data.sample ? 'Sample timeline: ' : 'Last telemetry: '}{dateTime(node.last_seen_at)}
               {node.reading_freshness === 'stale' && (
                 <span>Stale · last measured {node.last_measured_safety}</span>
               )}
@@ -248,9 +248,9 @@ export function NodeDrawer({
               <div className="section-heading">
                 <h3>
                   <Activity size={17} />
-                  Sensor history
+                  {data.sample ? 'Sample history' : 'Sensor history'}
                 </h3>
-                <div className="segmented compact">
+                {!data.sample && <div className="segmented compact">
                   {(['1h', '24h', '7d'] as const).map((value) => (
                     <button
                       key={value}
@@ -260,7 +260,7 @@ export function NodeDrawer({
                       {value}
                     </button>
                   ))}
-                </div>
+                </div>}
               </div>
               <div className="chart-heading">
                 <select
@@ -370,7 +370,7 @@ export function NodeDrawer({
                       ? 'Synthetic demonstration history'
                       : 'Received hardware history'}
                 </span>
-                <span>Local time · gaps indicate missing telemetry</span>
+                <span>{data.sample ? 'Local sample timeline · not device receipt time' : 'Local time · gaps indicate missing telemetry'}</span>
               </div>
             </section>
             <section className="related-alerts">

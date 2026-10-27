@@ -36,7 +36,7 @@ export function AlertList({
     <div className={compact ? 'alert-feed' : 'incident-list'}>
       {alerts.map((alert) => {
         const node = data.nodes.find((node) => node.id === alert.node_id)
-        const resolvable = !disabled && canResolve(alert, node, data.summary)
+        const resolvable = !data.sample && !disabled && canResolve(alert, node, data.summary)
         const channel = node ? conditionView(node, data.summary.demo_thresholds, !disabled).channels[alert.alert_type] : 'unknown'
         const measuredHazard = channel === 'hazard'
         const paused = disabled || !node || node.connectivity === 'offline' || channel === 'stale'
@@ -60,7 +60,7 @@ export function AlertList({
               <div className="incident-time">
                 {compact ? 'Observed ' : 'Triggered '}
                 {dateTime(compact ? alert.last_observed_at : alert.triggered_at)}{' '}
-                <span>· {alert.source === 'simulator' ? 'Simulated' : 'Hardware'}</span>
+                <span>· {data.sample ? 'Sample timeline' : alert.source === 'simulator' ? 'Simulated' : 'Hardware'}</span>
               </div>
               <small className={`incident-condition ${measuredHazard ? 'condition-danger' : ''}`}>
                 {alert.status === 'resolved' ? `Incident closed · ${condition === 'Measured clear · awaiting closure' ? 'fresh normal observation' : condition}` : condition}
@@ -80,7 +80,7 @@ export function AlertList({
                     {alert.status === 'active' && (
                       <button
                         className="button small secondary"
-                        disabled={busy || disabled}
+                        disabled={busy || disabled || data.sample}
                         onClick={() => onAction(alert.id, 'acknowledged')}
                       >
                         <Check size={14} />
@@ -89,7 +89,7 @@ export function AlertList({
                     )}
                     <button
                       className="button small secondary"
-                      disabled={busy || disabled || !resolvable}
+                      disabled={busy || disabled || data.sample || !resolvable}
                       onClick={() => onAction(alert.id, 'resolved')}
                       title={
                         resolvable
@@ -103,7 +103,7 @@ export function AlertList({
                   </div>
                   {!resolvable && (
                     <small className="resolution-reason">
-                      {resolutionReason(alert, node, data.summary)}
+                      {data.sample ? 'Sample playback is read-only; no incident changes are saved.' : resolutionReason(alert, node, data.summary)}
                     </small>
                   )}
                 </div>

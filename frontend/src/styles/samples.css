@@ -1,0 +1,93 @@
+.workspace-mode { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; margin: 0 0 24px; background: var(--surface); }
+.workspace-mode button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 17px; border-radius: 5px; color: var(--muted); background: transparent; border: 0; font: inherit; cursor: pointer; }
+.workspace-mode button[aria-selected="true"] { background: var(--ink); color: var(--surface); }
+.workspace-mode button:focus-visible, .sample-workspace button:focus-visible { outline: 2px solid var(--water); outline-offset: 3px; }
+.workspace-mode button:disabled { opacity: .55; cursor: wait; }
+.sample-workspace .page-heading { margin-bottom: 22px; }
+.sample-workspace .heading-eyebrow { display: flex; align-items: center; gap: 7px; }
+.sample-console { margin-bottom: 26px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.sample-console-controls { display: flex; align-items: center; gap: 24px; padding: 20px 24px; border-bottom: 1px solid var(--line); }
+.sample-console-controls label { display: flex; flex-direction: column; gap: 7px; min-width: 260px; font-size: 12px; color: var(--muted); }
+.sample-console-controls select { width: 100%; color: var(--ink); font-size: 14px; }
+.sample-console-controls p { flex: 1; font-size: 14px; line-height: 1.6; color: var(--muted); margin: 0; }
+.sample-console-controls .button { flex-shrink: 0; }
+.sample-stage { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px; }
+.sample-stage h2 { font-size: 24px; margin: 8px 0; }
+.sample-stage p { color: var(--muted); margin: 0; font-size: 14px; line-height: 1.6; max-width: 700px; }
+.sample-run-indicator { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 12px; color: var(--muted); }
+.sample-run-indicator > span { width: 7px; height: 7px; background: var(--water); border-radius: 50%; }
+.sample-run-indicator.complete > span { background: var(--safe); }
+.sample-progress { height: 4px; background: var(--line); }
+.sample-progress > span { display: block; height: 100%; background: var(--water); }
+.sample-disclosure { display: flex; align-items: center; gap: 9px; padding: 13px 24px; background: var(--paper); font-size: 12px; color: var(--muted); line-height: 1.6; }
+.sample-disclosure svg { flex-shrink: 0; }
+.sample-workspace .sample-brand { text-align: left; background: transparent; border: 0; width: 100%; cursor: pointer; }
+.sample-workspace .nav-item { width: 100%; border: 0; background: transparent; font: inherit; cursor: pointer; text-align: left; }
+.sample-workspace .nav-item.selected { background: #e3e8cc; }
+.sample-return { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; color: inherit; font-size: 12px; text-align: left; }
+.sample-mobile-nav { display: none; }
+@media (max-width: 900px) {
+  .sample-console-controls { flex-wrap: wrap; gap: 16px; }
+  .sample-console-controls label { flex: 1; }
+  .sample-console-controls p { flex-basis: 100%; order: 3; }
+  .sample-stage { align-items: flex-start; flex-direction: column; gap: 14px; }
+}
+@media (max-width: 767px) {
+  .sample-mobile-nav { display: block; margin-bottom: 18px; }
+  .sample-console-controls { padding: 16px; }
+  .sample-console-controls label { min-width: 0; width: 100%; flex-basis: 100%; }
+  .sample-stage, .sample-disclosure { padding: 16px; }
+  .sample-workspace .topbar .breadcrumb { min-width: 0; }
+  .sample-workspace .topbar .breadcrumb > span, .sample-workspace .topbar .breadcrumb > svg { display: none; }
+  .workspace-mode { max-width: 100%; }
+  .workspace-mode button { padding: 10px 12px; }
+}
+
+/* Keep the cutaway and automatic scenario explanation together on presentation screens. */
+.sample-dashboard { display: flex; flex-direction: column; }
+.sample-dashboard > * { order: 3; }
+.sample-dashboard > .selected-overview { order: 0; }
+.sample-dashboard > .metrics-grid { order: 1; }
+.sample-dashboard > .incident-ribbon { order: 2; }
+@media (min-width: 1000px) {
+  .sample-workspace main { position: relative; padding-top: 18px; }
+  .sample-workspace .workspace-mode { position: absolute; top: 18px; right: 34px; margin-bottom: 0; }
+  .sample-workspace .page-heading { padding-right: 285px; margin-bottom: 16px; min-height: 64px; }
+  .sample-workspace h1 { font-size: 32px; }
+  .sample-workspace .heading-eyebrow { margin-bottom: 6px; }
+  .sample-workspace .page-heading p { margin-top: 7px; font-size: 12px; }
+  .sample-console { margin-bottom: 18px; }
+  .sample-console-controls { padding: 10px 18px; gap: 16px; }
+  .sample-console-controls label { flex: 1; flex-direction: row; align-items: center; gap: 12px; }
+  .sample-console-controls select { max-width: 330px; }
+  .sample-console-controls > p { display: none; }
+  .sample-stage { padding: 12px 18px; }
+  .sample-stage h2 { font-size: 20px; margin: 5px 0; }
+  .sample-stage p { font-size: 13px; }
+  .sample-disclosure { padding: 8px 18px; font-size: 11px; }
+  .sample-workspace .selected-heading { padding: 10px 18px; }
+  .sample-workspace .selected-overview { margin-bottom: 20px; }
+  .sample-workspace .asset-readings { padding: 14px 20px; }
+  .sample-workspace .asset-identity h3 { font-size: 25px; margin: 5px 0 8px; }
+  .sample-workspace .overview-sensors { margin-top: 10px; }
+  .sample-workspace .overview-sensor { padding: 8px 0; }
+  .sample-workspace .overview-sensor > strong { font-size: 24px; margin: 5px 0 3px; }
+  .sample-workspace .threshold-gauge { margin-top: 7px; }
+  .sample-workspace .gauge-label { margin-top: 5px; }
+  .sample-workspace .asset-inspect { padding-top: 8px; }
+  .sample-workspace .manhole-visualizer { padding: 12px 18px; }
+  .sample-workspace .chamber-illustration { max-height: 230px; }
+  .sample-workspace .overview-receipt { padding: 10px 18px; font-size: 11px; }
+}
+
+@media (min-width: 1000px) and (max-height: 900px) {
+  .sample-workspace main { padding-top: 12px; }
+  .sample-workspace .workspace-mode { top: 12px; }
+  .sample-workspace .selected-heading { padding-top: 8px; padding-bottom: 8px; }
+  .sample-workspace .asset-readings { padding-top: 8px; padding-bottom: 8px; }
+  .sample-workspace .page-heading { min-height: 52px; margin-bottom: 12px; }
+  .sample-workspace .page-heading p { display: none; }
+  .sample-console-controls { padding-top: 8px; padding-bottom: 8px; }
+  .sample-stage { padding-top: 8px; padding-bottom: 8px; }
+  .sample-workspace .threshold-gauge { display: none; }
+}

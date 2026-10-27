@@ -1,6 +1,6 @@
 # Product Requirements Document — Smart Manhole Monitoring System
 
-**Version:** 1.5 (Milestones 4A–4D completed; hardware handoff audit, 2026-10-26 IST)
+**Version:** 1.6 (Built-in dashboard sample scenarios approved, 2026-10-27 IST)
 **Status:** Software implemented and verified; physical hardware integration pending
 **Project:** Smart-Manhole Gas, Overflow & Tamper Monitor  
 **Type:** Embedded Systems & IoT college project / municipal monitoring demonstrator  
@@ -441,3 +441,31 @@ reachable deployment, authentication/TLS strategy, modem power and operator data
 service. The present unauthenticated Flask development server is not a public
 deployment. No API, database schema, simulator or firmware changes are part of this
 documentation handoff. Main-branch integration requires explicit owner approval.
+
+## 22. Approved dashboard sample scenarios — 2026-10-27
+
+The user approved built-in preloaded scenarios to demonstrate the complete network
+when a single physical prototype or ESP32 fetching cannot produce all conditions.
+Keep the existing website and main dashboard; no second site or hosting project.
+
+- Offer Live / Demo scenarios independently of API success. Selecting a sample
+  starts automatic playback; Restart is the only playback control. Hold the final
+  state after completion. Full transport controls remain deferred.
+- Provide gas, multi-location and combined-hazard samples. Show incident arrival,
+  independent hazard layers and partial recovery while keeping incidents open.
+- Generate isolated browser-owned presentation snapshots/history, explicitly
+  labelled sample data/timeline. Reuse existing dashboard components and thresholds;
+  never store samples in SQLite, overwrite hardware or mutate real incidents.
+- Stop live polling during sample playback and discard old clocks/audio on restart,
+  scenario switch or mode exit. Return to fresh API fetching in Live mode.
+- Preserve reduced motion and explicit sound opt-in; sample details/history stay
+  local and incident actions are read-only. Sample charts retain earlier observations
+  and never move incident timestamps backward as readings recover.
+- Browser playback works with all API requests unavailable after the frontend loads.
+  Offline reopening when the frontend is unavailable and tile caching are excluded.
+
+Acceptance: verify entry with blocked API, every automatic timeline, restart/switch,
+completion hold, no API reads/writes in samples, local history, truthful combined
+recovery, Live return, keyboard focus, optional sound and reduced motion. Inspect
+1366×768, 1920×1080 and existing mobile bounds. Run frontend checks and the complete
+browser suite; record actual results in PROJECT_STATE.md. No commit/push is implied.

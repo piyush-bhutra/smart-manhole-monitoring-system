@@ -13,9 +13,36 @@ Physical ESP32 transport/calibration is not yet verified.
 - [Architecture and hardware integration](docs/integration.md)
 - [ESP32 teammate integration guide](docs/HARDWARE_INTEGRATION_GUIDE.md) — exact payload, LAN setup, electrical checks and physical acceptance checklist
 
-For a fresh clone, use branch `codex/smart-manhole-pulse-4a` and complete the
-one-time installation below before starting the launcher. Local dependencies and
-databases are deliberately not versioned. The redesign is not yet merged into main.
+For a fresh clone, complete the one-time installation below before starting the
+launcher. Local dependencies and databases are deliberately not versioned.
+
+## Built-In Sample Scenarios
+
+Choose **Demo scenarios** beside **Live** in the existing website. Selecting a
+scenario starts a 48-second automatic sequence; **Restart** begins it again.
+The final state is held when playback completes. Included samples demonstrate a
+gas incident, concurrent incidents at several campus locations, and combined gas
+and overflow with independent recovery at one location.
+
+These samples run entirely in the browser after the website loads. ESP32 readings,
+Flask and SQLite are not required for playback. Sample entry is available even
+when the first API connection fails. To present samples with only the frontend,
+from `frontend/` run `npm.cmd run dev` and open the local URL printed by Vite, then
+select **Demo scenarios**. API errors on the initial Live view are expected if
+Flask is not running. Keep Vite running to open/reload the website.
+
+Sample mode reuses the dashboard, cutaway, map markers, alert list and local sample
+history. Data and timestamps are explicitly labelled as a simulated demonstration.
+No sample readings or incident actions are written to the real database. Live
+fetching stops while samples are mounted and resumes when you select **Live**.
+Incident actions are read-only during playback. Optional alert sound requires an
+explicit click; restarting, selecting another sample or changing modes resets
+sound to off. Reduced-motion preferences retain the data sequence and hazard labels.
+
+This is the same website, not a separate hosted demo. The frontend must be loaded;
+offline reopening/installable-app caching is not implemented. Map tiles still need
+internet, but a tile failure does not prevent sample playback or location/alert
+inspection. See [the approved design](docs/superpowers/specs/2026-10-27-dashboard-demo-scenarios-design.md).
 
 ## Start the Presentation
 

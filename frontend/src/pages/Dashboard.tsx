@@ -126,6 +126,7 @@ export function Dashboard({
       <IncidentRibbon data={data} disabled={disabled} onOpen={onAlerts} />
       {data.nodes.length > 0 && (
         <SensorOverview
+          sample={data.sample}
           node={data.nodes.find((node) => node.id === focusedId) || data.nodes[0]}
           nodes={data.nodes}
           thresholds={data.summary.demo_thresholds}
@@ -211,7 +212,7 @@ export function Dashboard({
                 <th>Methane</th>
                 <th>H2S</th>
                 <th>Water height</th>
-                <th>Last telemetry</th>
+                <th>{data.sample ? 'Sample timeline' : 'Last telemetry'}</th>
                 <th>
                   <span className="sr-only">Details</span>
                 </th>

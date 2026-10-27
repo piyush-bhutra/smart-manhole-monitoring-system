@@ -89,6 +89,8 @@ export interface IngestResult {
   received_at: string
 }
 export interface Snapshot {
+  /** Frontend-only sample playback; never an API/device receipt. */
+  sample?: boolean
   incidentEvents?: import('../services/incidentEvents').IncidentEvents
   summary: Summary
   nodes: MonitorNode[]

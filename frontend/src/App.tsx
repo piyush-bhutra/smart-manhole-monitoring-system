@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   Activity,
   ArrowUpRight,
@@ -21,6 +21,8 @@ import { SoundControl } from './components/SoundControl'
 import { Dashboard } from './pages/Dashboard'
 import { Alerts } from './pages/Alerts'
 import { Simulator } from './pages/Simulator'
+import { SampleWorkspace } from './pages/SampleWorkspace'
+import { WorkspaceMode } from './components/WorkspaceMode'
 import { dateTime, time } from './utils'
 
 type Page = 'dashboard' | 'alerts' | 'simulator'
@@ -38,6 +40,16 @@ function currentPage(): Page {
 }
 
 export default function App() {
+  const [sample, setSample] = useState(false)
+  const mounted = useRef(false)
+  useLayoutEffect(() => {
+    if (mounted.current) document.getElementById(sample ? 'sample-mode-tab' : 'live-mode-tab')?.focus({ preventScroll: true })
+    mounted.current = true
+  }, [sample])
+  return sample ? <SampleWorkspace onLive={() => setSample(false)} /> : <LiveWorkspace onDemo={() => setSample(true)} />
+}
+
+function LiveWorkspace({ onDemo }: { onDemo: () => void }) {
   const [page, setPage] = useState<Page>(currentPage)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [focusedId, setFocusedId] = useState('MH-001')
@@ -239,6 +251,8 @@ export default function App() {
           </div>
         </header>
         <main id="main-content">
+          <WorkspaceMode sample={false} onChange={onDemo} disabled={busy} />
+          <div id="workspace-panel" role="tabpanel" aria-labelledby="live-mode-tab">
           <div className="page-heading">
             <div>
               <div className="heading-eyebrow">
@@ -377,6 +391,7 @@ export default function App() {
               )}
             </div>
           )}
+          </div>
           <footer className="app-footer">
             <span>
               <ShieldCheck size={13} />

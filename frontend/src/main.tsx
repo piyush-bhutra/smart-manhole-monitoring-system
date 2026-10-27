@@ -5,5 +5,6 @@ import './styles.css'
 import './styles/pulse.css'
 import './styles/incidents.css'
 import './styles/refinement.css'
+import './styles/samples.css'
 
 createRoot(document.getElementById('root')!).render(<App />)
