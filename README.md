@@ -275,6 +275,10 @@ node table remain available. API failures show an error/stale snapshot, never fi
 
 ## Development Approval
 
+Use the single `main` branch for this project, as requested by the owner, so the
+team sees all published work in the default repository view. Create additional
+branches or worktrees only when explicitly requested.
+
 Every milestone requires verification, updated handoff docs and review.
 Commit only with explicit approval; push only with separate explicit authorization.
 Use the configured owner identity without identity overrides or co-author attribution.

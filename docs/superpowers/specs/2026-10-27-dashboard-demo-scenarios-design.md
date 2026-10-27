@@ -1,6 +1,6 @@
 # Dashboard sample scenarios
 
-Status: approved and implemented on 2026-10-27; user subsequently authorized commit and push to the development branch. Main merge/deployment are not authorized.
+Status: approved and implemented on 2026-10-27; user subsequently authorized commit/push and integration into the single main branch. Website deployment is not included.
 Date: 2026-10-27 IST.
 
 ## Intent and agreed requirements

@@ -1,10 +1,11 @@
 # PROJECT_STATE - Smart Manhole Monitoring System
 
 **Updated:** 2026-10-27 IST.
-**Milestone:** 4A–4D published; built-in dashboard sample scenarios implemented and verified locally.
-**Approval:** User authorized the final repository audit, integration documentation
-checkpoint and normal push to the existing development upstream. Main merge requires
-separate explicit approval. The published 4A–4C baseline is
+**Milestone:** 4A–4D and verified built-in dashboard sample scenarios integrated into main.
+**Approval:** User explicitly authorized publishing all work on main and keeping a
+single main branch for teammate access. Continue future work on main; create another
+branch or worktree only if explicitly requested. Commit/push still require user
+authorization. The historical published 4A–4C baseline is
 `e8be03fa89bc52c32b3cf036bd5ea0b14e624715` on `codex/smart-manhole-pulse-4a`,
 tracking `origin/codex/smart-manhole-pulse-4a`. M1–M3 remains historical context.
 **Sources:** PRD.md records approved scope; docs/api-contract.md v1.1 records actual
@@ -13,9 +14,11 @@ wire formats; README.md documents startup, configuration and the presentation sc
 ## Built-in dashboard sample scenarios — 2026-10-27
 
 User approved the design and implementation in chat, then explicitly authorized
-committing and pushing the verified changes to `codex/dashboard-demo-scenarios`,
-based on `337efae`. Main merge and deployment require separate authorization.
-The historical publishing and main-merge notes below describe the earlier handoff.
+commit/push and directed that all work be available on the single main branch.
+The verified feature commit is `535ee12`, fast-forwarded into main from `337efae`
+without source changes or conflicts. Fully merged development branches are retired
+after main is pushed. No website deployment is implied. The historical publishing
+and main-merge notes below describe the earlier handoff.
 
 Implemented Live / Demo scenarios tabs inside the existing website. Demo entry is
 available even when the initial API connection fails. Selecting one of three samples
